@@ -114,7 +114,7 @@ void LightShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 }
 
 
-void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, Light* directionalLight, Light** pointLights, Light* spotLight, float constantFactor, float linearFactor, float quadraticFactor, float time, bool isLight, bool isDirectionalLightOn, bool isSpotLightOn, bool isRedPointLightOn, bool isGreenPointLightOn, bool isBluePointLightOn)
+void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, Light* directionalLight, Light** pointLights, Light* spotLight, float pointLightConstantFactor, float pointLightLinearFactor, float pointLightQuadraticFactor, float spotLightConstantFactor, float spotLightLinearFactor, float spotLightQuadraticFactor, float time, bool isLight, bool isDirectionalLightOn, bool isSpotLightOn, bool isRedPointLightOn, bool isGreenPointLightOn, bool isBluePointLightOn)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -137,9 +137,12 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->Map(manipulationBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	manipulationPtr = (ManipulationBufferType*)mappedResource.pData;
 	manipulationPtr->time = time;
-	manipulationPtr->constantFactor = constantFactor;
-	manipulationPtr->linearFactor = linearFactor;
-	manipulationPtr->quadraticFactor = quadraticFactor;
+	manipulationPtr->pointLightConstantFactor = pointLightConstantFactor;
+	manipulationPtr->pointLightLinearFactor = pointLightLinearFactor;
+	manipulationPtr->pointLightQuadraticFactor = pointLightQuadraticFactor;
+	manipulationPtr->spotLightConstantFactor = spotLightConstantFactor;
+	manipulationPtr->spotLightLinearFactor = spotLightLinearFactor;
+	manipulationPtr->spotLightQuadraticFactor = spotLightQuadraticFactor;
 	manipulationPtr->isLight = isLight ? float(1.0f) : float(0.0f);
 	manipulationPtr->isDirectionalLightOn = isDirectionalLightOn ? float(1.0f) : float(0.0f);
 	manipulationPtr->isSpotLightOn = isSpotLightOn ? float(1.0f) : float(0.0f);

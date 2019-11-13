@@ -7,9 +7,12 @@ SamplerState sampler0 : register(s0);
 cbuffer ManipulationBuffer : register(b0)
 {
 	float time;
-	float constantFactor;
-	float linearFactor;
-	float quadraticFactor;
+	float pointLightConstantFactor;
+	float pointLightLinearFactor;
+	float pointLightQuadraticFactor;
+	float spotLightConstantFactor;
+	float spotLightLinearFactor;
+	float spotLightQuadraticFactor;
 	
 	float isLight;
 	float isDirectionalLightOn;
@@ -17,7 +20,7 @@ cbuffer ManipulationBuffer : register(b0)
 	float isRedPointLightOn;
 	float isGreenPointLightOn;
 	float isBluePointLightOn;
-	float2 padding0;
+	float3 padding0;
 };
 
 cbuffer DirectionalLightBuffer : register(b1)
@@ -58,10 +61,16 @@ float map(float value, float istart, float istop, float ostart, float ostop) {
 float4 calculateLighting(float3 inverseLightDirection, float3 normal, float4 diffuse)
 {
 	float intensity = saturate(dot(normal, inverseLightDirection));
-	//intensity = intensity / 2;;
-	//intensity += 0.5f;
-	intensity = map(intensity, 0, 1, 1, 1);
+
+	intensity = map(intensity, 0, 1, 0.5, 1);
 	float4 colour = saturate(diffuse * intensity);				
+	return colour;
+}
+
+float4 calculateDirectionalLighting(float3 inverseLightDirection, float3 normal, float4 diffuse)
+{
+	float intensity = saturate(dot(normal, inverseLightDirection));
+	float4 colour = saturate(diffuse * intensity);
 	return colour;
 }
 
@@ -72,7 +81,6 @@ float4 main(InputType input) : SV_TARGET
 
 	textureColour = texture0.Sample(sampler0, input.tex);
 
-	return textureColour;
 
 	// If light indicator geometry, just return texture colour.
 	if (isLight == float(1.0f))
@@ -112,7 +120,7 @@ float4 main(InputType input) : SV_TARGET
 
 			pointLightDistances[i] = length(pointLightPositions[i] - input.worldPosition);
 
-			float attenuation = 1 / (constantFactor + (linearFactor * pointLightDistances[i]) + (quadraticFactor * pow(pointLightDistances[i], 2)));
+			float attenuation = 1 / (pointLightConstantFactor + (pointLightLinearFactor * pointLightDistances[i]) + (pointLightQuadraticFactor * pow(pointLightDistances[i], 2)));
 
 			pointLightColour += calculateLighting(pointLightVectors[i], input.normal, pointLightDiffuseColours[i]) * attenuation + pointLightAmbientColours[i];
 
@@ -122,7 +130,7 @@ float4 main(InputType input) : SV_TARGET
 
 	
 
-	float4 directionalLightColour = { 0.0f, 0.0f, 0.0f, 0.0f };
+	float4 directionalLightColour = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	// Directional light
 	if (isDirectionalLightOn == float(1.0f))
@@ -132,7 +140,7 @@ float4 main(InputType input) : SV_TARGET
 		manipulatedDirectionalLightDirection.x = sin(time);
 		manipulatedDirectionalLightDirection.z = cos(time);
 
-		directionalLightColour = calculateLighting(-manipulatedDirectionalLightDirection, input.normal, directionalLightDiffuseColour) + directionalLightAmbientColour;
+		directionalLightColour = calculateDirectionalLighting(-manipulatedDirectionalLightDirection, input.normal, directionalLightDiffuseColour) + directionalLightAmbientColour;
 
 		lightColour += directionalLightColour;
 	}
@@ -155,7 +163,7 @@ float4 main(InputType input) : SV_TARGET
 		cosB = cos(halfConeAngle);
 		//if (cosA > cosB)
 		{
-			float attenuation = 1 / (constantFactor + (linearFactor * spotLightDistance) + (quadraticFactor * pow(spotLightDistance, 2)));
+			float attenuation = 1 / (spotLightConstantFactor + (spotLightLinearFactor * spotLightDistance) + (spotLightQuadraticFactor * pow(spotLightDistance, 2)));
 			spotLightColour = calculateLighting(spotLightVector, input.normal, spotLightDiffuseColour);
 			spotLightColour *= attenuation; 
 			spotLightColour *= pow(max(cosA, 0), 16);

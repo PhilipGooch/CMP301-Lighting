@@ -163,58 +163,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AlphaBlendingShader.cpp" />
-    <ClCompile Include="App1.cpp" />
-    <ClCompile Include="World.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="MyPlaneMesh.cpp" />
-    <ClCompile Include="Portal.cpp" />
-    <ClCompile Include="StencilShader.cpp" />
-    <ClCompile Include="TextureShader.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="AlphaBlendingShader.h" />
-    <ClInclude Include="App1.h" />
-    <ClInclude Include="World.h" />
-    <ClInclude Include="MyPlaneMesh.h" />
-    <ClInclude Include="Portal.h" />
-    <ClInclude Include="StencilShader.h" />
-    <ClInclude Include="TextureShader.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\DXFramework\DXFramework.vcxproj">
       <Project>{e887c38b-1273-433a-9dac-a153da5cf145}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="transparancy_ps.hlsl">
+    <ClCompile Include="App1.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MyPlaneMesh.cpp" />
+    <ClCompile Include="SimpleShader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="App1.h" />
+    <ClInclude Include="MyPlaneMesh.h" />
+    <ClInclude Include="SimpleShader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="simple_ps.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="stencil_ps.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="stencil_vs.hlsl">
+    <FxCompile Include="simple_vs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-    </FxCompile>
-    <FxCompile Include="texture_ps.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="texture_vs.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>

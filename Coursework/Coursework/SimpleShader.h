@@ -11,9 +11,12 @@ private:
 	struct ManipulationBufferType
 	{
 		float time;
-		float constantFactor;
-		float linearFactor;
-		float quadraticFactor;
+		float pointLightConstantFactor;
+		float pointLightLinearFactor;
+		float pointLightQuadraticFactor;
+		float spotLightConstantFactor;
+		float spotLightLinearFactor;
+		float spotLightQuadraticFactor;
 		
 		float isLight;
 		float isDirectionalLightOn;
@@ -21,7 +24,8 @@ private:
 		float isRedPointLightOn;
 		float isGreenPointLightOn;
 		float isBluePointLightOn;
-		XMFLOAT2 padding;
+
+		XMFLOAT3 padding;
 	};
 
 	struct DirectionalLightBufferType
@@ -51,7 +55,7 @@ public:
 	LightShader(ID3D11Device* device, HWND hwnd);
 	~LightShader();
 
-	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, Light* directionalLight, Light** pointLights, Light* spotLight, float constantFactor, float linearFactor, float quadraticFactor, float time, bool isLight, bool isDirectionalLightOn, bool isSpotLightOn, bool isRedPointLightOn, bool isGreenPointLightOn, bool isBluePointLightOn);
+	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, Light* directionalLight, Light** pointLights, Light* spotLight, float pointLightConstantFactor, float pointLightLinearFactor, float pointLightQuadraticFactor, float spotLightConstantFactor, float spotLightLinearFactor, float spotLightQuadraticFactor, float time, bool isLight, bool isDirectionalLightOn, bool isSpotLightOn, bool isRedPointLightOn, bool isGreenPointLightOn, bool isBluePointLightOn);
 
 private:
 	void initShader(const wchar_t* cs, const wchar_t* ps);

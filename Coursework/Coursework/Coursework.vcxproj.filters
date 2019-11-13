@@ -24,19 +24,7 @@
     <ClCompile Include="MyPlaneMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextureShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StencilShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Portal.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="World.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AlphaBlendingShader.cpp">
+    <ClCompile Include="SimpleShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,36 +35,15 @@
     <ClInclude Include="MyPlaneMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextureShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StencilShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Portal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="World.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AlphaBlendingShader.h">
+    <ClInclude Include="SimpleShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="texture_vs.hlsl">
+    <FxCompile Include="simple_ps.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="texture_ps.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="stencil_ps.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="stencil_vs.hlsl">
-      <Filter>Resource Files</Filter>
-    </FxCompile>
-    <FxCompile Include="transparancy_ps.hlsl">
+    <FxCompile Include="simple_vs.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>
