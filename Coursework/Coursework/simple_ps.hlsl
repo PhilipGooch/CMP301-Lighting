@@ -62,7 +62,7 @@ float4 calculateLighting(float3 inverseLightDirection, float3 normal, float4 dif
 {
 	float intensity = saturate(dot(normal, inverseLightDirection));
 
-	intensity = map(intensity, 0, 1, 0.5, 1);
+	//intensity = map(intensity, 0, 1, 0.5, 1);
 	float4 colour = saturate(diffuse * intensity);				
 	return colour;
 }
