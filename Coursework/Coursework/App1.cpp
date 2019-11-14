@@ -36,37 +36,15 @@ void App1::init(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeigh
 
 	isDirectionalLightOn = false;
 	isSpotLightOn = false;
-	isRedPointLightOn = false;
-	isGreenPointLightOn = false;
-	isBluePointLightOn = false;
-
-	pointLightConstantFactor = 0.412f;
-	pointLightLinearFactor = 0.108f;
-	pointLightQuadraticFactor = 0.004f;
 
 	spotLightConstantFactor = 0.2f;
 	spotLightLinearFactor = 0.025f;
 	spotLightQuadraticFactor = 0.0f;
-
-	pointLightAmbientColour[0] = XMFLOAT4(0.02f, 0.0f, 0.0f, 1.0f);
-	pointLightAmbientColour[1] = XMFLOAT4(0.0f, 0.02f, 0.0f, 1.0f);
-	pointLightAmbientColour[2] = XMFLOAT4(0.0f, 0.0f, 0.02f, 1.0f);
-
-	pointLightDiffuseColour[0] = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	pointLightDiffuseColour[1] = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	pointLightDiffuseColour[2] = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-
-	pointLightPositions[0] = XMFLOAT3(planeSize * 0.25f, 2.0f, planeSize * 0.75f);
-	pointLightPositions[1] = XMFLOAT3(planeSize * 0.5f, 2.0f, planeSize * 0.75f);
-	pointLightPositions[2] = XMFLOAT3(planeSize * 0.75f, 2.0f, planeSize * 0.75f);
-
-	for (int i = 0; i < 3; i++)
-	{
-		pointLights[i] = new Light;
-		pointLights[i]->setAmbientColour(pointLightAmbientColour[i].x, pointLightAmbientColour[i].y, pointLightAmbientColour[i].z, pointLightAmbientColour[i].w);
-		pointLights[i]->setDiffuseColour(pointLightDiffuseColour[i].x, pointLightDiffuseColour[i].y, pointLightDiffuseColour[i].z, pointLightDiffuseColour[i].w);
-		pointLights[i]->setPosition(pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
-	}
+	
+	pointLights[0] = new PointLight(textureMgr, XMFLOAT3(planeSize * 0.25f, 2.0f, planeSize * 0.75f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), XMFLOAT4(0.02f, 0.0f, 0.0f, 1.0f));
+	pointLights[1] = new PointLight(textureMgr, XMFLOAT3(planeSize * 0.5f, 2.0f, planeSize * 0.75f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 0.02f, 1.0f));
+	pointLights[2] = new PointLight(textureMgr, XMFLOAT3(planeSize * 0.75f, 2.0f, planeSize * 0.75f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 0.02f, 1.0f));
+	
 
 	spotLightDiffuseColour = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	spotLightDirection = XMFLOAT3(0.0f, -1.0f, 0.0f);
@@ -130,9 +108,8 @@ bool App1::frame()
 	
 	for (int i = 0; i < 3; i++)
 	{
-		pointLights[i]->setPosition(pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
+		pointLights[i]->setPosition();
 	}
-
 	
 	rotationMatrix = XMMatrixRotationRollPitchYaw(XMConvertToRadians(camera->getRotation().x), XMConvertToRadians(camera->getRotation().y), XMConvertToRadians(camera->getRotation().z));
 
@@ -181,102 +158,6 @@ bool App1::frame()
 	return true;
 }
 
-void App1::portalPass()
-{
-	portalTexture->setRenderTarget(renderer->getDeviceContext());
-	portalTexture->clearRenderTarget(renderer->getDeviceContext(), 0.0f, 1.0f, 1.0f, 1.0f);
-
-	//// Get matrices
-	portalCamera->update();
-	XMMATRIX worldMatrix = renderer->getWorldMatrix();
-	XMMATRIX viewMatrix = portalCamera->getViewMatrix();
-	XMMATRIX projectionMatrix = renderer->getProjectionMatrix();
-
-	// Cube
-	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix *= XMMatrixTranslation(planeSize * 0.66f, 1, planeSize * 0.33f);
-	cubeMesh->sendData(renderer->getDeviceContext());
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"camel"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
-	simpleShader->render(renderer->getDeviceContext(), cubeMesh->getIndexCount());
-
-	// Sphere point light indicators
-	bool pointLightsOn[3];
-
-	if (isRedPointLightOn)
-		pointLightsOn[0] = true;
-	else
-		pointLightsOn[0] = false;
-
-	if (isGreenPointLightOn)
-		pointLightsOn[1] = true;
-	else
-		pointLightsOn[1] = false;
-
-	if (isBluePointLightOn)
-		pointLightsOn[2] = true;
-	else
-		pointLightsOn[2] = false;
-
-	const wchar_t* textureIDs[3] = { L"red", L"green", L"blue" };
-	for (int i = 0; i < 3; i++)
-	{
-		if (pointLightsOn[i])
-		{
-			worldMatrix = renderer->getWorldMatrix();
-			worldMatrix *= XMMatrixScaling(0.5f, 0.5f, 0.5f);
-			worldMatrix *= XMMatrixTranslation(pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
-			sphereMesh->sendData(renderer->getDeviceContext());
-			simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(textureIDs[i]), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, true, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
-			simpleShader->render(renderer->getDeviceContext(), sphereMesh->getIndexCount());
-		}
-	}
-
-	// Room
-	// bottom
-	worldMatrix = renderer->getWorldMatrix();
-	planeMesh->sendData(renderer->getDeviceContext());
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
-	simpleShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
-
-	// top
-	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix *= XMMatrixRotationRollPitchYaw(PI, 0.0f, 0.0f);
-	worldMatrix *= XMMatrixTranslation(0.0f, planeSize, planeSize);
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
-	simpleShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
-
-	// left
-	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix *= XMMatrixRotationRollPitchYaw(-PI / 2, -PI / 2, 0.0f);
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
-	simpleShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
-
-	// right
-	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix *= XMMatrixRotationRollPitchYaw(-PI / 2, PI / 2, 0.0f);
-	worldMatrix *= XMMatrixTranslation(planeSize, 0.0f, planeSize);
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
-	simpleShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
-
-	// front
-	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix *= XMMatrixRotationRollPitchYaw(-PI / 2, 0.0f, 0.0f);
-	worldMatrix *= XMMatrixTranslation(0.0f, 0.0f, planeSize);
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
-	simpleShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
-
-	// back
-	worldMatrix = renderer->getWorldMatrix();
-	worldMatrix *= XMMatrixRotationRollPitchYaw(PI / 2, 0.0f, 0.0f);
-	worldMatrix *= XMMatrixTranslation(0.0f, planeSize, 0.0f);
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
-	simpleShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
-
-
-
-	renderer->setBackBufferRenderTarget();
-}
-
 void App1::finalPass()
 {
 
@@ -296,37 +177,20 @@ void App1::finalPass()
 	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix *= XMMatrixTranslation(planeSize * 0.66f, 1, planeSize * 0.33f);
 	cubeMesh->sendData(renderer->getDeviceContext());
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"camel"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
+	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"camel"), directionalLight, pointLights, spotLight, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn);
 	simpleShader->render(renderer->getDeviceContext(), cubeMesh->getIndexCount());
 
-	// Sphere point light indicators
-	bool pointLightsOn[3];
-
-	if (isRedPointLightOn)
-		pointLightsOn[0] = true;
-	else
-		pointLightsOn[0] = false;
-
-	if (isGreenPointLightOn)
-		pointLightsOn[1] = true;
-	else
-		pointLightsOn[1] = false;
-
-	if (isBluePointLightOn)
-		pointLightsOn[2] = true;
-	else
-		pointLightsOn[2] = false;
 
 	const wchar_t* textureIDs[3] = { L"red", L"green", L"blue" };
 	for (int i = 0; i < 3; i++)
 	{
-		if (pointLightsOn[i])
+		if (pointLights[i]->on)
 		{
 			worldMatrix = renderer->getWorldMatrix();
 			worldMatrix *= XMMatrixScaling(0.5f, 0.5f, 0.5f);
-			worldMatrix *= XMMatrixTranslation(pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
+			worldMatrix *= XMMatrixTranslation(pointLights[i]->position.x, pointLights[i]->position.y, pointLights[i]->position.z);
 			sphereMesh->sendData(renderer->getDeviceContext());
-			simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(textureIDs[i]), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, true, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
+			simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(textureIDs[i]), directionalLight, pointLights, spotLight, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, true, isDirectionalLightOn, isSpotLightOn);
 			simpleShader->render(renderer->getDeviceContext(), sphereMesh->getIndexCount());
 		}
 	}
@@ -335,45 +199,45 @@ void App1::finalPass()
 	// bottom
 	worldMatrix = renderer->getWorldMatrix();
 	planeMesh->sendData(renderer->getDeviceContext());
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
+	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn);
 	simpleShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
 
 	// top
 	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix *= XMMatrixRotationRollPitchYaw(PI, 0.0f, 0.0f);
 	worldMatrix *= XMMatrixTranslation(0.0f, planeSize, planeSize);
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
+	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn);
 	simpleShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
 
 	// left
 	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix *= XMMatrixRotationRollPitchYaw(-PI / 2, -PI / 2, 0.0f);
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
+	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn);
 	simpleShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
 
 	// right
 	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix *= XMMatrixRotationRollPitchYaw(-PI / 2, PI / 2, 0.0f);
 	worldMatrix *= XMMatrixTranslation(planeSize, 0.0f, planeSize);
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
+	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn);
 	simpleShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
 
 	// front
 	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix *= XMMatrixRotationRollPitchYaw(-PI / 2, 0.0f, 0.0f);
 	worldMatrix *= XMMatrixTranslation(0.0f, 0.0f, planeSize);
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
+	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn);
 	simpleShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
 
 	// back
 	worldMatrix = renderer->getWorldMatrix();
 	worldMatrix *= XMMatrixRotationRollPitchYaw(PI / 2, 0.0f, 0.0f);
 	worldMatrix *= XMMatrixTranslation(0.0f, planeSize, 0.0f);
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
+	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, textureMgr->getTexture(L"concrete"), directionalLight, pointLights, spotLight, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn);
 	simpleShader->render(renderer->getDeviceContext(), planeMesh->getIndexCount());
 
 	portalMesh->sendData(renderer->getDeviceContext());
-	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, portalTexture->getShaderResourceView(), directionalLight, pointLights, spotLight, pointLightConstantFactor, pointLightLinearFactor, pointLightQuadraticFactor, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn, isRedPointLightOn, isGreenPointLightOn, isBluePointLightOn);
+	simpleShader->setShaderParameters(renderer->getDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, portalTexture->getShaderResourceView(), directionalLight, pointLights, spotLight, spotLightConstantFactor, spotLightLinearFactor, spotLightQuadraticFactor, time, false, isDirectionalLightOn, isSpotLightOn);
 	simpleShader->render(renderer->getDeviceContext(), portalMesh->getIndexCount());
 
 	// Render GUI
@@ -400,26 +264,26 @@ void App1::gui()
 
 	// Build UI
 	//ImGui::Text("FPS: %.2f", timer->getFPS());
-	ImGui::SliderFloat("Point Light Constant", &pointLightConstantFactor, 0.0f, 0.5f);
+	/*ImGui::SliderFloat("Point Light Constant", &pointLightConstantFactor, 0.0f, 0.5f);
 	ImGui::SliderFloat("Point Light Linear", &pointLightLinearFactor, 0.0f, 0.5f);
-	ImGui::SliderFloat("Point Light Quadratic", &pointLightQuadraticFactor, 0.0f, 0.5f);
-	ImGui::SliderFloat("Red X", &pointLightPositions[0].x, 0, (float)planeSize);
-	ImGui::SliderFloat("Red Y", &pointLightPositions[0].y, 0, (float)planeSize);
-	ImGui::SliderFloat("Red Z", &pointLightPositions[0].z, 0, (float)planeSize);
-	ImGui::SliderFloat("Green X", &pointLightPositions[1].x, 0, (float)planeSize);
-	ImGui::SliderFloat("Green Y", &pointLightPositions[1].y, 0, (float)planeSize);
-	ImGui::SliderFloat("Green Z", &pointLightPositions[1].z, 0, (float)planeSize);
-	ImGui::SliderFloat("Blue X", &pointLightPositions[2].x, 0, (float)planeSize);
-	ImGui::SliderFloat("Blue Y", &pointLightPositions[2].y, 0, (float)planeSize);
-	ImGui::SliderFloat("Blue Z", &pointLightPositions[2].z, 0, (float)planeSize);
+	ImGui::SliderFloat("Point Light Quadratic", &pointLightQuadraticFactor, 0.0f, 0.5f);*/
+	ImGui::SliderFloat("Red X", &pointLights[0]->position.x, 0, (float)planeSize);
+	ImGui::SliderFloat("Red Y", &pointLights[0]->position.y, 0, (float)planeSize);
+	ImGui::SliderFloat("Red Z", &pointLights[0]->position.z, 0, (float)planeSize);
+	ImGui::SliderFloat("Green X", &pointLights[1]->position.x, 0, (float)planeSize);
+	ImGui::SliderFloat("Green Y", &pointLights[1]->position.y, 0, (float)planeSize);
+	ImGui::SliderFloat("Green Z", &pointLights[1]->position.z, 0, (float)planeSize);
+	ImGui::SliderFloat("Blue X", &pointLights[2]->position.x, 0, (float)planeSize);
+	ImGui::SliderFloat("Blue Y", &pointLights[2]->position.y, 0, (float)planeSize);
+	ImGui::SliderFloat("Blue Z", &pointLights[2]->position.z, 0, (float)planeSize);
 	ImGui::SliderFloat("Spot Light Constant", &spotLightConstantFactor, 0.0f, 0.5f);
 	ImGui::SliderFloat("Spot Light Linear", &spotLightLinearFactor, 0.0f, 0.5f);
 	ImGui::SliderFloat("Spot Light Quadratic", &spotLightQuadraticFactor, 0.0f, 0.5f);
 	ImGui::Checkbox("Directional Light", &isDirectionalLightOn);
 	ImGui::Checkbox("Spot Light", &isSpotLightOn);
-	ImGui::Checkbox("Red Point Light", &isRedPointLightOn);
-	ImGui::Checkbox("Green Point Light", &isGreenPointLightOn);
-	ImGui::Checkbox("Blue Point Light", &isBluePointLightOn);
+	ImGui::Checkbox("Red Point Light", &pointLights[0]->on);
+	ImGui::Checkbox("Green Point Light", &pointLights[1]->on);
+	ImGui::Checkbox("Blue Point Light", &pointLights[2]->on);
 
 	// Render UI
 	ImGui::Render();

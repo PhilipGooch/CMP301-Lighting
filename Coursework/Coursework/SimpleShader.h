@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DXF.h"
+#include "PointLight.h"
 
 using namespace std;
 using namespace DirectX;
@@ -55,7 +56,7 @@ public:
 	LightShader(ID3D11Device* device, HWND hwnd);
 	~LightShader();
 
-	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, Light* directionalLight, Light** pointLights, Light* spotLight, float pointLightConstantFactor, float pointLightLinearFactor, float pointLightQuadraticFactor, float spotLightConstantFactor, float spotLightLinearFactor, float spotLightQuadraticFactor, float time, bool isLight, bool isDirectionalLightOn, bool isSpotLightOn, bool isRedPointLightOn, bool isGreenPointLightOn, bool isBluePointLightOn);
+	void setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& world, const XMMATRIX& view, const XMMATRIX& projection, ID3D11ShaderResourceView* texture, Light* directionalLight, PointLight** pointLights, Light* spotLight, float spotLightConstantFactor, float spotLightLinearFactor, float spotLightQuadraticFactor, float time, bool isLight, bool isDirectionalLightOn, bool isSpotLightOn);
 
 private:
 	void initShader(const wchar_t* cs, const wchar_t* ps);

@@ -172,11 +172,13 @@
     <ClCompile Include="App1.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MyPlaneMesh.cpp" />
+    <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="SimpleShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h" />
     <ClInclude Include="MyPlaneMesh.h" />
+    <ClInclude Include="PointLight.h" />
     <ClInclude Include="SimpleShader.h" />
   </ItemGroup>
   <ItemGroup>

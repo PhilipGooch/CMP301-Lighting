@@ -6,6 +6,7 @@
 #include "DXF.h"	// include dxframework
 #include "SimpleShader.h"
 #include "MyPlaneMesh.h"
+#include "PointLight.h"
 
 #define PI 3.1415962f
 
@@ -22,7 +23,6 @@ public:
 	void scene();
 
 protected:
-	void portalPass();
 	void finalPass();
 	bool render();
 	void gui();
@@ -52,17 +52,9 @@ private:
 
 	float time;
 
-	Light* pointLights[3];
-	XMFLOAT4 pointLightAmbientColour[3];
-	XMFLOAT4 pointLightDiffuseColour[3];
-	XMFLOAT3 pointLightPositions[3];
-	bool isRedPointLightOn;
-	bool isGreenPointLightOn;
-	bool isBluePointLightOn;
+	PointLight* pointLights[3];
 
-	float pointLightConstantFactor;
-	float pointLightLinearFactor;
-	float pointLightQuadraticFactor;
+
 
 	RenderTexture* portalTexture;
 

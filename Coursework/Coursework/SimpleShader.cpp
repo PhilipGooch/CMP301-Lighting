@@ -114,7 +114,7 @@ void LightShader::initShader(const wchar_t* vsFilename, const wchar_t* psFilenam
 }
 
 
-void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, Light* directionalLight, Light** pointLights, Light* spotLight, float pointLightConstantFactor, float pointLightLinearFactor, float pointLightQuadraticFactor, float spotLightConstantFactor, float spotLightLinearFactor, float spotLightQuadraticFactor, float time, bool isLight, bool isDirectionalLightOn, bool isSpotLightOn, bool isRedPointLightOn, bool isGreenPointLightOn, bool isBluePointLightOn)
+void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX& worldMatrix, const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix, ID3D11ShaderResourceView* texture, Light* directionalLight, PointLight** pointLights, Light* spotLight, float spotLightConstantFactor, float spotLightLinearFactor, float spotLightQuadraticFactor, float time, bool isLight, bool isDirectionalLightOn, bool isSpotLightOn)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -137,18 +137,18 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->Map(manipulationBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	manipulationPtr = (ManipulationBufferType*)mappedResource.pData;
 	manipulationPtr->time = time;
-	manipulationPtr->pointLightConstantFactor = pointLightConstantFactor;
-	manipulationPtr->pointLightLinearFactor = pointLightLinearFactor;
-	manipulationPtr->pointLightQuadraticFactor = pointLightQuadraticFactor;
+	manipulationPtr->pointLightConstantFactor = pointLights[0]->constant;
+	manipulationPtr->pointLightLinearFactor = pointLights[0]->linear;
+	manipulationPtr->pointLightQuadraticFactor = pointLights[0]->quadratic;
 	manipulationPtr->spotLightConstantFactor = spotLightConstantFactor;
 	manipulationPtr->spotLightLinearFactor = spotLightLinearFactor;
 	manipulationPtr->spotLightQuadraticFactor = spotLightQuadraticFactor;
 	manipulationPtr->isLight = isLight ? float(1.0f) : float(0.0f);
 	manipulationPtr->isDirectionalLightOn = isDirectionalLightOn ? float(1.0f) : float(0.0f);
 	manipulationPtr->isSpotLightOn = isSpotLightOn ? float(1.0f) : float(0.0f);
-	manipulationPtr->isRedPointLightOn = isRedPointLightOn ? float(1.0f) : float(0.0f);
-	manipulationPtr->isGreenPointLightOn = isGreenPointLightOn ? float(1.0f) : float(0.0f);
-	manipulationPtr->isBluePointLightOn = isBluePointLightOn ? float(1.0f) : float(0.0f);
+	manipulationPtr->isRedPointLightOn = pointLights[0]->on ? float(1.0f) : float(0.0f);
+	manipulationPtr->isGreenPointLightOn = pointLights[1]->on ? float(1.0f) : float(0.0f);
+	manipulationPtr->isBluePointLightOn = pointLights[2]->on ? float(1.0f) : float(0.0f);
 	deviceContext->Unmap(manipulationBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &manipulationBuffer);
 
@@ -166,9 +166,9 @@ void LightShader::setShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	pointLightPtr = (PointLightBufferType*)mappedResource.pData;
 	for (int i = 0; i < 3; i++)
 	{
-		pointLightPtr->ambientColour[i] = pointLights[i]->getAmbientColour();
-		pointLightPtr->diffuseColour[i] = pointLights[i]->getDiffuseColour();
-		pointLightPtr->position[i] = XMFLOAT4(pointLights[i]->getPosition().x, pointLights[i]->getPosition().y, pointLights[i]->getPosition().z, 1.0f);
+		pointLightPtr->ambientColour[i] = pointLights[i]->ambient;
+		pointLightPtr->diffuseColour[i] = pointLights[i]->diffuse;
+		pointLightPtr->position[i] = XMFLOAT4(pointLights[i]->position.x, pointLights[i]->position.y, pointLights[i]->position.z, 1.0f);
 	}
 	deviceContext->Unmap(pointLightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(2, 1, &pointLightBuffer);
