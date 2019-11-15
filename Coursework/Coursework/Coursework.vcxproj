@@ -174,12 +174,14 @@
     <ClCompile Include="MyPlaneMesh.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="SimpleShader.cpp" />
+    <ClCompile Include="SpotLight.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App1.h" />
     <ClInclude Include="MyPlaneMesh.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="SimpleShader.h" />
+    <ClInclude Include="SpotLight.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="simple_ps.hlsl">
